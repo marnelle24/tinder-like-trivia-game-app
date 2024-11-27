@@ -26,6 +26,14 @@ const mockRecords = [
     year: 1969,
     imageUrl: "https://picsum.photos/400/602",
     genre: "Rock"
+  },
+  {
+    id: 4,
+    title: "Two Less Lonely People",
+    artist: "The Beatles",
+    year: 1969,
+    imageUrl: "https://picsum.photos/400/602",
+    genre: "Rock"
   }
 ];
 
