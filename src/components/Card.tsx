@@ -1,111 +1,91 @@
-import React, { useMemo } from 'react';
-import { animated, useSpring, to } from '@react-spring/web';
+import React from 'react';
+import { useSpring, animated } from '@react-spring/web';
 import { useDrag } from '@use-gesture/react';
-import clsx from 'clsx';
-
-interface Record {
-  id: number;
-  title: string;
-  artist: string;
-  year: number;
-  imageUrl: string;
-  genre: string;
-}
 
 interface CardProps {
-  record: Record;
+  question: {
+    question: string;
+    category: string;
+    difficulty: string;
+  };
   onSwipe: (direction: 'left' | 'right') => void;
 }
 
-export function Card({ record, onSwipe }: CardProps) {
-  const [{ x, rotate, scale }, api] = useSpring(() => ({
+export function Card({ question, onSwipe }: CardProps) {
+  const [{ x, rotate }, api] = useSpring(() => ({
     x: 0,
     rotate: 0,
-    scale: 1,
-    config: { tension: 300, friction: 20 },
   }));
 
-  const bind = useDrag(
-    ({ active, movement: [mx], direction: [xDir], velocity: [vx] }) => {
-      const trigger = Math.abs(mx) > 100 || vx > 0.3;
-      const dir = xDir < 0 ? -1 : 1;
+  const [{ likeOpacity }, likeApi] = useSpring(() => ({
+    likeOpacity: 0,
+  }));
 
-      if (!active && trigger) {
-        api.start({
-          x: dir * window.innerWidth * 1.5,
-          rotate: dir * 50,
-          scale: 0.8,
-          config: { tension: 200, friction: 30 },
-          onRest: () => onSwipe(dir === 1 ? 'right' : 'left'),
-        });
-      } else {
-        api.start({
-          x: active ? mx : 0,
-          rotate: active ? mx / 15 : 0,
-          scale: active ? 1.05 : 1,
-          config: { tension: 300, friction: 20 },
-        });
-      }
-    },
-    { axis: 'x' }
-  );
+  const [{ dislikeOpacity }, dislikeApi] = useSpring(() => ({
+    dislikeOpacity: 0,
+  }));
 
-  const likeOpacity = useMemo(
-    () => to([x], (x) => (x >= 0 ? Math.min(1, x / 100) : 0)),
-    []
-  );
+  const bind = useDrag(({ down, movement: [mx], direction: [xDir], velocity: [vx] }) => {
+    const trigger = vx > 0.2;
+    const dir = xDir < 0 ? -1 : 1;
 
-  const dislikeOpacity = useMemo(
-    () => to([x], (x) => (x <= 0 ? Math.min(1, Math.abs(x) / 100) : 0)),
-    []
-  );
+    if (!down && trigger) {
+      onSwipe(dir === 1 ? 'right' : 'left');
+    }
+
+    // Update opacities based on drag position
+    const opacity = Math.min(Math.abs(mx) / 100, 1);
+    likeApi.start({ likeOpacity: mx > 0 ? opacity : 0 });
+    dislikeApi.start({ dislikeOpacity: mx < 0 ? opacity : 0 });
+
+    api.start({
+      x: down ? mx : 0,
+      rotate: down ? mx / 20 : 0,
+      immediate: down,
+    });
+  });
 
   return (
-    <animated.div
-      {...bind()}
-      style={{
-        x,
-        rotate,
-        scale,
-        touchAction: 'none',
-      }}
-      className="absolute w-full will-change-transform"
-    >
-      <div className="relative bg-white rounded-2xl shadow-xl overflow-hidden max-w-sm mx-auto">
+    <div className="absolute w-[90%] h-full">
+      <animated.div
+        {...bind()}
+        style={{
+          x,
+          rotate,
+          touchAction: 'none',
+        }}
+        className="bg-white rounded-xl p-6 shadow-xl w-full h-full cursor-grab active:cursor-grabbing"
+      >
         <animated.div
           style={{ opacity: likeOpacity }}
-          className="absolute top-8 right-8 z-10 transform rotate-12"
+          className="absolute top-8 right-16 z-10 transform rotate-12"
         >
           <div className="border-4 border-green-500 rounded-lg px-4 py-1">
-            <span className="text-green-500 font-bold text-2xl">LIKE</span>
-          </div>
-        </animated.div>
-        
-        <animated.div
-          style={{ opacity: dislikeOpacity }}
-          className="absolute top-8 left-8 z-10 transform -rotate-12"
-        >
-          <div className="border-4 border-red-500 rounded-lg px-4 py-1">
-            <span className="text-red-500 font-bold text-2xl">NOPE</span>
+            <span className="text-green-500 font-bold text-2xl">TRUE</span>
           </div>
         </animated.div>
 
-        <img
-          src={record.imageUrl}
-          alt={record.title}
-          className="w-full h-96 object-cover"
-        />
-        <div className="p-6">
-          <h2 className="text-2xl font-bold mb-2">{record.title}</h2>
-          <p className="text-gray-600 mb-2">{record.artist}</p>
-          <div className="flex justify-between items-center">
-            <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">
-              {record.genre}
-            </span>
-            <span className="text-gray-500">{record.year}</span>
+        <animated.div
+          style={{ opacity: dislikeOpacity }}
+          className="absolute top-8 left-16 z-10 transform -rotate-12"
+        >
+          <div className="border-4 border-red-500 rounded-lg px-4 py-1">
+            <span className="text-red-500 font-bold text-2xl">FALSE</span>
+          </div>
+        </animated.div>
+
+        <div className="flex flex-col h-full">
+          <div className="flex">
+            <span className="text-sm text-white mb-2 bg-blue-500/80 border shadow-md border-blue-500 rounded-full inline-block px-4 py-1.5">{question.category}</span>
+          </div>
+          <div className="flex-grow flex items-center justify-center">
+            <p className="text-xl text-center">{question.question}</p>
+          </div>
+          <div className="flex justify-between items-center mt-4">
+            <span className="text-sm text-white bg-orange-300 border shadow-md border-orange-300 rounded-full inline-block px-4 py-1.5">Difficulty: {question.difficulty}</span>
           </div>
         </div>
-      </div>
-    </animated.div>
+      </animated.div>
+    </div>
   );
 }

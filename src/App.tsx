@@ -1,78 +1,108 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card } from './components/Card';
 import { SwipeButtons } from './components/SwipeButtons';
+import { toast, Toaster } from 'react-hot-toast'; // You'll need to install this: npm install react-hot-toast
 
-const mockRecords = [
-  {
-    id: 1,
-    title: "Dark Side of the Moon",
-    artist: "Pink Floyd",
-    year: 1973,
-    imageUrl: "https://picsum.photos/400/600",
-    genre: "Progressive Rock"
-  },
-  {
-    id: 2,
-    title: "Kind of Blue",
-    artist: "Miles Davis",
-    year: 1959,
-    imageUrl: "https://picsum.photos/400/601",
-    genre: "Jazz"
-  },
-  {
-    id: 3,
-    title: "Abbey Road",
-    artist: "The Beatles",
-    year: 1969,
-    imageUrl: "https://picsum.photos/400/602",
-    genre: "Rock"
-  },
-  {
-    id: 4,
-    title: "Two Less Lonely People",
-    artist: "The Beatles",
-    year: 1969,
-    imageUrl: "https://picsum.photos/400/602",
-    genre: "Rock"
-  }
-];
+// Add this interface before the App function
+interface ProcessedTriviaQuestion {
+  id: string;
+  question: string;
+  isTrue: boolean;
+  category: string;
+  difficulty: string;
+}
+
+// Add this before the App function
+async function fetchAndProcessTrivia(): Promise<ProcessedTriviaQuestion[]> {
+  const response = await fetch('https://opentdb.com/api.php?amount=50&type=boolean');
+  const data = await response.json();
+  
+  return data.results.map((q: any, index: number) => ({
+    id: index.toString(),
+    question: decodeHTMLEntities(q.question),
+    isTrue: q.correct_answer === "True",
+    category: q.category,
+    difficulty: q.difficulty
+  }));
+}
+
+// Add this helper function
+function decodeHTMLEntities(text: string): string {
+  const textarea = document.createElement('textarea');
+  textarea.innerHTML = text;
+  return textarea.value;
+}
 
 function App() {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [questions, setQuestions] = useState<ProcessedTriviaQuestion[]>([]);
+  const [scores, setScores] = useState({ correct: 0, incorrect: 0 });
+
+  useEffect(() => {
+    const loadTrivia = async () => {
+      try {
+        const processedQuestions = await fetchAndProcessTrivia();
+        setQuestions(processedQuestions);
+      } catch (error) {
+        console.error('Failed to load trivia:', error);
+      }
+    };
+    
+    loadTrivia();
+  }, []);
 
   const handleSwipe = (direction: 'left' | 'right') => {
-    console.log(`Swiped ${direction} on ${mockRecords[currentIndex].title}`);
-    if (currentIndex < mockRecords.length - 1) {
+    const currentQuestion = questions[currentIndex];
+    const userAnswer = direction === 'right'; // right = true, left = false
+    
+    // Check if answer is correct and update scores
+    if (userAnswer === currentQuestion.isTrue) {
+      toast.success('Correct answer! 🎉');
+      setScores(prev => ({ ...prev, correct: prev.correct + 1 }));
+    } else {
+      toast.error('Wrong answer! 😅');
+      setScores(prev => ({ ...prev, incorrect: prev.incorrect + 1 }));
+    }
+
+    // Move to next question
+    if (currentIndex < questions.length - 1) {
       setCurrentIndex(currentIndex + 1);
     }
   };
 
-  const handleLike = () => handleSwipe('right');
-  const handleDislike = () => handleSwipe('left');
+  const handleTrue = () => handleSwipe('right');
+  const handleFalse = () => handleSwipe('left');
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-100 to-pink-100 p-4">
+      <Toaster position="top-center" />
       <div className="max-w-md mx-auto pt-10">
-        <h1 className="text-3xl font-bold text-center mb-8 text-gray-800">
-          Record Finder
-        </h1>
+        <h1 className="text-3xl font-bold text-center mb-8 text-gray-800">Trivia Time!</h1>
         
-        <div className="relative h-[600px]">
-          {currentIndex < mockRecords.length ? (
+        <div className="relative h-[400px] flex justify-center items-center">
+          {questions.length > 0 && currentIndex < questions.length ? (
             <Card
-              key={mockRecords[currentIndex].id}
-              record={mockRecords[currentIndex]}
+              key={questions[currentIndex].id}
+              question={questions[currentIndex]}
               onSwipe={handleSwipe}
             />
           ) : (
             <div className="flex items-center justify-center h-full">
-              <p className="text-xl text-gray-600">No more records to show!</p>
+              <p className="text-xl text-gray-600">
+                {questions.length === 0 ? 'Loading questions...' : 'No more questions!'}
+              </p>
             </div>
           )}
         </div>
 
-        {currentIndex < mockRecords.length && (
-          <SwipeButtons onLike={handleLike} onDislike={handleDislike} />
+        {questions.length > 0 && currentIndex < questions.length && (
+          <SwipeButtons 
+            onLike={handleTrue} 
+            onDislike={handleFalse}
+            trueLabel="True"
+            falseLabel="False"
+            scores={scores}
+          />
         )}
       </div>
     </div>
