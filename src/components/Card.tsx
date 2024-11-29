@@ -56,33 +56,31 @@ export function Card({ question, onSwipe }: CardProps) {
         }}
         className="bg-white rounded-xl p-6 shadow-xl w-full h-full cursor-grab active:cursor-grabbing"
       >
-        <animated.div
-          style={{ opacity: likeOpacity }}
-          className="absolute top-8 right-16 z-10 transform rotate-12"
-        >
-          <div className="border-4 border-green-500 rounded-lg px-4 py-1">
+        <animated.div style={{ opacity: likeOpacity }} className="absolute top-0 right-24 z-10 transform rotate-12">
+          <div className="border-4 border-green-500 rounded-lg px-4 py-1 bg-green-500/40">
             <span className="text-green-500 font-bold text-2xl">TRUE</span>
           </div>
         </animated.div>
 
-        <animated.div
-          style={{ opacity: dislikeOpacity }}
-          className="absolute top-8 left-16 z-10 transform -rotate-12"
-        >
-          <div className="border-4 border-red-500 rounded-lg px-4 py-1">
+        <animated.div style={{ opacity: dislikeOpacity }} className="absolute top-0 left-24 z-10 transform -rotate-12">
+          <div className="border-4 border-red-500 rounded-lg px-4 py-1 bg-red-500/40">
             <span className="text-red-500 font-bold text-2xl">FALSE</span>
           </div>
         </animated.div>
 
         <div className="flex flex-col h-full">
-          <div className="flex">
-            <span className="text-sm text-white mb-2 bg-blue-500/80 border shadow-md border-blue-500 rounded-full inline-block px-4 py-1.5">{question.category}</span>
+          <div className="pt-8 flex-grow flex items-start justify-center">
+            <p className="text-2xl text-center">{question.question}</p>
           </div>
-          <div className="flex-grow flex items-center justify-center">
-            <p className="text-xl text-center">{question.question}</p>
-          </div>
-          <div className="flex justify-between items-center mt-4">
-            <span className="text-sm text-white bg-orange-300 border shadow-md border-orange-300 rounded-full inline-block px-4 py-1.5">Difficulty: {question.difficulty}</span>
+          <div className="flex justify-between gap-2">
+            <div className="flex flex-col gap-1">
+              <span className="text-xs text-gray-500">Category</span>
+              <span className="capitalize text-xs text-white bg-blue-500/80 border shadow-md border-blue-500 rounded-full inline-block px-2 py-1.5">{question.category}</span>
+            </div>
+            <div className="flex flex-col justify-between gap-1 items-center">
+              <span className="text-xs text-gray-500">Difficulty</span>
+              <span className="capitalize text-xs text-white bg-orange-300 border shadow-md border-orange-300 rounded-full inline-block px-2 py-1.5">{question.difficulty}</span>
+            </div>
           </div>
         </div>
       </animated.div>

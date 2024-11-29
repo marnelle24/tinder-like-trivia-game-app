@@ -15,20 +15,23 @@ export function SwipeButtons({ onLike, onDislike, trueLabel, falseLabel, scores 
         <div className="flex flex-col items-center">
           <button
             onClick={onDislike}
-            className="bg-red-500 text-white px-8 py-3 rounded-full font-semibold hover:bg-red-600 transition-colors flex flex-col items-center"
+            className="bg-red-500 text-white px-6 py-2 rounded-full font-semibold hover:bg-red-600 transition-colors flex flex-col items-center"
           >
             <span>{falseLabel}</span>
           </button>
-          <span className="text-xl text-gray-800 drop-shadow opacity-90">{scores.incorrect}</span>
+          <div className="flex flex-col items-center mt-4">
+            <span className="text-xs text-gray-500">WRONG</span>
+            <span className="text-xl text-gray-800 drop-shadow opacity-90">{scores.incorrect}</span>
+          </div>
         </div>
         <div className="flex flex-col items-center">
-          <button
-            onClick={onLike}
-          className="bg-green-500 text-white px-8 py-3 rounded-full font-semibold hover:bg-green-600 transition-colors flex flex-col items-center"
-        >
+          <button onClick={onLike} className="bg-green-500 text-white px-6 py-2 rounded-full font-semibold hover:bg-green-600 transition-colors flex flex-col items-center">
             <span>{trueLabel}</span>
           </button>
-          <span className="text-xl text-gray-800 drop-shadow opacity-90">{scores.correct}</span>
+          <div className="flex flex-col items-center mt-4">
+            <span className="text-xs text-gray-500">CORRECT</span>
+            <span className="text-xl text-gray-800 drop-shadow opacity-90">{scores.correct}</span>
+          </div>
         </div>
       </div>
     </div>
