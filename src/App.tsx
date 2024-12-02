@@ -39,8 +39,8 @@ const MILESTONE_MESSAGES = [
   "Great job! You've completed 4 more questions! 🎯",
   "4 questions down! Keep up the momentum! 🚀",
   "You're on fire! Another 4 questions completed! 🔥",
-  "Hey Jannybab! Let's play some trivia! 🎉",
-  "Shoutout to Jan Megan Villarmia! Let's play some trivia! 🧠",
+  // "Hey Jannybab! Let's play some trivia! 🎉",
+  // "Shoutout to Jan Megan Villarmia! Let's play some trivia! 🧠",
   "Fantastic progress! Ready for the next round? ⭐",
   "4 more in the bag! You're getting smarter! 🧠"
 ];
