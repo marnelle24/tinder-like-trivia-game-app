@@ -130,8 +130,8 @@ function App() {
         onClose={handleCloseModal} 
         message={MILESTONE_MESSAGES[Math.floor(Math.random() * MILESTONE_MESSAGES.length)]} 
       />
-      <div className="max-w-md mx-auto pt-10">
-        <h1 className="text-3xl font-bold text-center mb-4 text-gray-800">Trivia Time!</h1>
+      <div className="max-w-md mx-auto pt-6">
+        <h1 className="text-3xl font-bold text-center mb-4 text-gray-800">⭐FunFact⭐OR⭐Fluff⭐</h1>
         
         <div className="relative h-[70vh] flex justify-center items-center">
           {questions.length > 0 && currentIndex < questions.length ? (
