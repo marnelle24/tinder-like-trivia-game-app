@@ -131,9 +131,12 @@ function App() {
         message={MILESTONE_MESSAGES[Math.floor(Math.random() * MILESTONE_MESSAGES.length)]} 
       />
       <div className="max-w-md mx-auto pt-6">
-        <h1 className="text-3xl font-bold text-center mb-4 text-gray-800">⭐FunFact⭐OR⭐Fluff⭐</h1>
+        <h1 className="text-3xl font-bold text-center text-gray-800 mb-2">TriviaLation</h1>
+        <p className="text-center text-gray-500 text-sm font-light mb-4">
+          Answering trivia is more fun than swiping Tinder
+        </p>
         
-        <div className="relative h-[70vh] flex justify-center items-center">
+        <div className="relative h-[50vh] flex justify-center items-center">
           {questions.length > 0 && currentIndex < questions.length ? (
             <Card
               key={questions[currentIndex].id}
@@ -162,7 +165,7 @@ function App() {
       </div>
 
       <footer className="fixed bottom-0 left-0 right-0 bg-zinc-600/80 py-3 text-center">
-        <p className="text-gray-200/80 text-[10px] font-light drop-shadow-sm drop-shadow-dark">
+        <p className="text-gray-200/80 text-[14px] font-light drop-shadow-sm drop-shadow-dark">
           Developed by: <span className="text-green-400">Sage Technology AI</span>
         </p>
       </footer>
