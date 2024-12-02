@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Card } from './components/Card';
 import { SwipeButtons } from './components/SwipeButtons';
 import { toast, Toaster } from 'react-hot-toast'; // You'll need to install this: npm install react-hot-toast
