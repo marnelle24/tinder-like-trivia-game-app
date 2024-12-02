@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Card } from './components/Card';
 import { SwipeButtons } from './components/SwipeButtons';
 import { toast, Toaster } from 'react-hot-toast'; // You'll need to install this: npm install react-hot-toast
+import { Modal } from './components/Modal';
 
 // Add this interface before the App function
 interface ProcessedTriviaQuestion {
@@ -33,10 +34,22 @@ function decodeHTMLEntities(text: string): string {
   return textarea.value;
 }
 
+// Add this to your existing MODAL_MESSAGES array or create a new one for milestones
+const MILESTONE_MESSAGES = [
+  "Great job! You've completed 4 more questions! 🎯",
+  "4 questions down! Keep up the momentum! 🚀",
+  "You're on fire! Another 4 questions completed! 🔥",
+  "Hey Jannybab! Let's play some trivia! 🎉",
+  "Shoutout to Jan Megan Villarmia! Let's play some trivia! 🧠",
+  "Fantastic progress! Ready for the next round? ⭐",
+  "4 more in the bag! You're getting smarter! 🧠"
+];
+
 function App() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [questions, setQuestions] = useState<ProcessedTriviaQuestion[]>([]);
   const [scores, setScores] = useState({ correct: 0, incorrect: 0 });
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     const loadTrivia = async () => {
@@ -58,13 +71,19 @@ function App() {
     // Check if answer is correct and update scores
     if (userAnswer === currentQuestion.isTrue) {
       toast.success('Correct answer! 🎉');
-      setScores(prev => ({ ...prev, correct: prev.correct + 1 }));
+      const newCorrectScore = scores.correct + 1;
+      setScores(prev => ({ ...prev, correct: newCorrectScore }));
+      
+      // Show milestone modal every 4 correct answers
+      if (newCorrectScore % 4 === 0) {
+        setIsModalOpen(true);
+      }
     } else {
       toast.error('Wrong answer! 😅');
       setScores(prev => ({ ...prev, incorrect: prev.incorrect + 1 }));
     }
 
-    // Move to next question
+    // Move to next question immediately
     if (currentIndex < questions.length - 1) {
       setCurrentIndex(currentIndex + 1);
     }
@@ -73,9 +92,44 @@ function App() {
   const handleTrue = () => handleSwipe('right');
   const handleFalse = () => handleSwipe('left');
 
+  const handleReset = async () => {
+    try {
+      // Show loading state
+      toast.loading('Loading new questions...', { id: 'loading' });
+      
+      // Fetch new questions
+      const newQuestions = await fetchAndProcessTrivia();
+      
+      // Reset states
+      setQuestions(newQuestions);
+      setCurrentIndex(0);
+      setScores({ correct: 0, incorrect: 0 });
+      
+      // Show success message
+      toast.success('New questions loaded!', {
+        id: 'loading',
+        duration: 2000
+      });
+    } catch (error) {
+      // Show error message
+      toast.error('Failed to load new questions. Try again!', {
+        id: 'loading'
+      });
+    }
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-100 to-pink-100 p-4">
+    <div className="min-h-screen bg-gradient-to-br from-purple-100 to-pink-100 p-4 pb-16 relative">
       <Toaster position="top-center" />
+      <Modal 
+        isOpen={isModalOpen} 
+        onClose={handleCloseModal} 
+        message={MILESTONE_MESSAGES[Math.floor(Math.random() * MILESTONE_MESSAGES.length)]} 
+      />
       <div className="max-w-md mx-auto pt-10">
         <h1 className="text-3xl font-bold text-center mb-4 text-gray-800">Trivia Time!</h1>
         
@@ -99,12 +153,19 @@ function App() {
           <SwipeButtons 
             onLike={handleTrue} 
             onDislike={handleFalse}
+            onReset={handleReset}
             trueLabel="True"
             falseLabel="False"
             scores={scores}
           />
         )}
       </div>
+
+      <footer className="fixed bottom-0 left-0 right-0 bg-zinc-600/80 py-3 text-center">
+        <p className="text-gray-200/80 text-[10px] font-light drop-shadow-sm drop-shadow-dark">
+          Developed by: <span className="text-green-400">Sage Technology AI</span>
+        </p>
+      </footer>
     </div>
   );
 }
